@@ -8,6 +8,7 @@
             "email": "michael.ruoss@ufirstgroup.com"
         }
     ],
+    "license": "MIT",
     "require": {
         "php": ">=5.3.0",
         "illuminate/support": "~4.1"
