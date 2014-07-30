@@ -69,7 +69,7 @@ class ImportFromCsvCommand extends Command {
 		$strings = array();
 
 		// Create output device and write CSV.
-		if (($input_fp = fopen($file, 'w')) === FALSE) {
+		if (($input_fp = fopen($file, 'r')) === FALSE) {
 			$this->error('Can\'t open the input file!');
 		}
 
