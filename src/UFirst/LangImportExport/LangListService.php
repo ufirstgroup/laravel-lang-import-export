@@ -22,7 +22,7 @@ class LangListService {
 		$language_file = app_path("lang/{$locale}/{$group}.php");
 		if (is_writable($language_file) && ($fp = fopen($language_file, 'w')) !== FALSE) {
 
-			fputs($fp, $header.var_export($translations, TRUE).";\n");
+			fputs($fp, $header.var_export($translations[$group], TRUE).";\n");
 			fclose($fp);
 		} else {
 			throw new Exception('Cannot open language file.');
