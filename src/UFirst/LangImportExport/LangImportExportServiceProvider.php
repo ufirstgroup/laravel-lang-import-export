@@ -1,6 +1,10 @@
-<?php namespace UFirst\LangImportExport;
+<?php
+
+namespace UFirst\LangImportExport;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
+
 use UFirst\LangImportExport\Console\ExportToCsvCommand;
 use UFirst\LangImportExport\Console\ImportFromCsvCommand;
 
@@ -18,9 +22,9 @@ class LangImportExportServiceProvider extends ServiceProvider {
 	 *
 	 * @return void
 	 */
-	public function boot()
+	public function boot(DispatcherContract $events)
 	{
-		$this->package('ufirst/lang-import-export');
+		parent::boot($events);
 		$this->registerExportToCsvCommand();
 		$this->registerImportFromCsvCommand();
 	}
@@ -42,7 +46,9 @@ class LangImportExportServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array();
+		return [
+			'lang-export.csv', 'lang-import.csv'
+		];
 	}
 
 	private function registerExportToCsvCommand() {
