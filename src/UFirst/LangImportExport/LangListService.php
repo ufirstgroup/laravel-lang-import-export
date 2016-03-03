@@ -25,7 +25,7 @@ class LangListService {
 			fputs($fp, $header.var_export($translations[$group], TRUE).";\n");
 			fclose($fp);
 		} else {
-			throw new Exception('Cannot open language file.');
+			throw new \Exception('Cannot open language file.');
 		}
 	}
 
