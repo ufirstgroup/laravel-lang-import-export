@@ -19,7 +19,7 @@ class LangListService {
 		}
 		$header = "<?php\n\nreturn ";
 
-		$language_file = app_path("lang/{$locale}/{$group}.php");
+		$language_file = app_path("resources/lang/{$locale}/{$group}.php");
 		if (is_writable($language_file) && ($fp = fopen($language_file, 'w')) !== FALSE) {
 
 			fputs($fp, $header.var_export($translations[$group], TRUE).";\n");
