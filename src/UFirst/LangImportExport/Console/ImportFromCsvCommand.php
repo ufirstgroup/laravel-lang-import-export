@@ -75,7 +75,10 @@ class ImportFromCsvCommand extends Command {
 
 		// Write CSV lintes
 		while (($data = fgetcsv($input_fp, 0, $delimiter, $enclosure, $escape)) !== FALSE) {
-			$strings[$data[0]] = $data[1];
+			if(isset($strings[$data[0]]) == false)
+				$strings[$data[0]] = [];
+
+			$strings[$data[0]][$data[1]] = $data[2];
 		}
 
 		fclose($input_fp);

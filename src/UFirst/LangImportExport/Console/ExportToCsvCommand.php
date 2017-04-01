@@ -72,10 +72,18 @@ class ExportToCsvCommand extends Command {
 		}
 
 		// Write CSV lintes
-		foreach ($strings as $key => $value) {
-			fputcsv($out, array($key, $value), $delimiter, $enclosure);
+		foreach ($strings as $group => $files) {
+			foreach($files as $key => $value) {
+				$this->writeFile($out, $group, $key, $value, $delimiter, $enclosure);
+			}
 		}
 
 		fclose($out);
 	}
+
+	private function writeFile($out, $group, $key, $value, $delimiter, $enclosure)
+	{
+		fputcsv($out, array($group, $key, $value), $delimiter, $enclosure);
+	}
+
 }
