@@ -1,24 +1,25 @@
 {
-    "name": "ufirst/lang-import-export",
+    "name": "highsolutions/laravel-lang-import-export",
     "description": "A Laravel package providing artisan commands to import and export language files from and to CSV.",
     "keywords": ["laravel", "localization", "translation", "messages", "import", "export", "CSV"],
     "authors": [
         {
             "name": "Michael Ruoss",
-            "email": "michael.ruoss@ufirstgroup.com"
+            "email": "michael.ruoss@UFirstgroup.com"
+        },
+        {
+            "name": "HighSolutions",
+            "email": "adam@highsolutions.pl"
         }
     ],
     "license": "MIT",
     "require": {
-        "php": ">=5.3.0",
+        "php": ">=5.4.0",
         "illuminate/support": "~5.1"
     },
     "autoload": {
-        "classmap": [
-            "src/migrations"
-        ],
-        "psr-0": {
-            "UFirst\\LangImportExport\\": "src/"
+        "psr-4": {
+            "HighSolutions\\LangImportExport\\": "src/"
         }
     },
     "extra": {

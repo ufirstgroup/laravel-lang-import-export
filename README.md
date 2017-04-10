@@ -1,4 +1,4 @@
-laravel-lang-import-export
+Laravel-Lang-Import-Export
 ==========================
 
 This package provides artisan commands to import and export language files from and to CSV. This can be used to send translations to agencies that normally work with Excel-like files.
@@ -43,7 +43,7 @@ Add the following line to the `require` section of your Laravel webapp's `compos
 
 ```javascript
     "require": {
-        "ufirst/lang-import-export": "dev-master"
+        "HighSolutions/laravel-lang-import-export": "5.4.*"
     }
 ```
 
@@ -56,7 +56,7 @@ Finally add the following line to the `providers` array of your `app/config/app.
 ```php
     'providers' => array(
         /* ... */
-        'UFirst\LangImportExport\LangImportExportServiceProvider'
+        'HighSolutions\LangImportExport\LangImportExportServiceProvider'
     )
 ```
 
@@ -68,19 +68,33 @@ The package currently provides two commands, one for exporting the files and one
 ### Export
 
 ```bash
-php artisan lang-export:csv en_US navigation
-php artisan lang-export:csv --output /some/file en_US navigation
-php artisan lang-export:csv --delimiter=";" --enclosure='"' --output=/some/file en_US navigation
+php artisan lang:export
+php artisan lang:export en * --output=export
+php artisan lang:export en auth --A --X
 ```
 
-You have to pass the __locale__ and the __group__ as arguments. The group is the name of the langauge file without its extension. You may define options for your desired CSV format.
+When you call command without parameters, export file will be generated for all localization files within default locale. But you can define **locale** explicitly. You can also export only one file (second parameter - **group**).
+But there is few more useful parameters:
+
+| name of parameter | description                              | is required? | default value                      |
+|-------------------|------------------------------------------|--------------|------------------------------------|
+| locale            | The locale to be exported                | NO           | default lang of application        |
+| group             | The name of translation file to export   | NO           | \* - all files                     |
+| --O / --output    | Filename of exported translation files   | NO           | storage/app/lang-import-export.csv |
+| --A / --append    | Append name of group to the name of file | NO           | empty                              |
+| --X / --excel     | Set file encoding for Excel              | NO           | UTF-8                              |
+| --D / --delimiter | Field delimiter                          | NO           | ,                                  |
+| --E / --enclosure | Field enclosure                          | NO           | "                                  |
 
 ### Import
 
-
 ```
-php artisan lang-import:csv en_US navigation /some/file
-php artisan lang-import:csv --delimiter=";" --enclosure='"' --escape='\\' en_US navigation /some/file
+php artisan lang-import:csv en auth /path/to/file
+php artisan lang-import:csv --delimiter=";" --enclosure='"' --escape='\\' en_US auth /some/file
 ```
 
-You have to pass  the __locale__, the __group__ and the __path to the CSV file__ as arguments. The group is the name of the langauge file without its extension. You may define options to match the CSV format of your input file.
+You have to pass  the __locale__, the __group__ and the __path to the CSV file__ as arguments. The group is the name of the langauge file without its extension. When you exported all files, write *. You may define options to match the CSV format of your input file.
+
+### Credits
+
+This package was originally created by [UFirst](http://github.com/ufirstgroup) and is available here: [Laravel-lang-import-export](https://github.com/ufirstgroup/laravel-lang-import-export).
