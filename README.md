@@ -110,7 +110,11 @@ When you call command without parameters - it will try to read default file of e
 
 Changelog
 ------------
+5.4.2
+- resolve problems with PSR-4 autoloading
+
 5.4.1
+- improved import command
 - improved Excel support
 - support of [LaravelLocalization](https://github.com/mcamara/laravel-localization) routes files
 
