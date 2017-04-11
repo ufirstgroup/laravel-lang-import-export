@@ -16,12 +16,13 @@ class ImportFromCsvCommand extends Command
      * @var string
      */
 	protected $signature = 'lang:import
-							{locale : The locale to be imported (default - default lang of application).} 
-    						{group : The name of translation file to imported (default - all files).} 
-    						{--I|input= : Filename of file to be imported with translation files(optional, default - storage/app/lang-import-export.csv).} 
+							{locale? : The locale to be imported (default - default lang of application).} 
+    						{group? : The name of translation file to imported (default - all files).} 
+    						{input? : Filename of file to be imported with translation files(optional, default - storage/app/lang-import-export.csv).} 
     						{--D|delimiter=, : Field delimiter (optional, default - ",").} 
     						{--E|enclosure=" : Field enclosure (optional, default - \'"\').} 
-    						{--C|escape=\\" : Field excape (optional, default - \'\\\').}';
+    						{--C|escape=" : Field escape (optional, default - \'"\').}
+    						{--X|excel : Set file encoding from Excel (optional, default - UTF-8).}';
 
 	/**
 	 * The console command description.
@@ -88,13 +89,17 @@ class ImportFromCsvCommand extends Command
 	private function getParameters()
 	{
 		$this->parameters = [
+			'locale' => $this->argument('locale') === null ? config('app.locale') : $this->argument('locale'),
 			'group' => $this->argument('group'),
-			'locale' => $this->argument('locale') === false ? config('app.locale') : $this->argument('locale'),
-			'input' => $this->option('input') === false ? $this->defaultPath : base_path($this->option('input')),
+			'input' => $this->argument('input') === null ? $this->defaultPath : base_path($this->argument('input')),
 			'delimiter' => $this->option('delimiter'),
 			'enclosure' => $this->option('enclosure'),
 			'escape' => $this->option('escape'),
+			'excel' => $this->option('excel') !== false,
 		];	
+
+		if(substr($this->parameters['input'], -4) != $this->ext)
+			$this->parameters['input'] .= $this->ext;
 	}
 
 	/**
@@ -115,24 +120,74 @@ class ImportFromCsvCommand extends Command
 	 */
 	private function getTranslations()
 	{
-		$translations = [];
+		$input = $this->openFile();
 
-		// Create output device and write CSV.
-		if (($input_fp = fopen($this->parameters['input'], 'r')) === false) {
+		$translations = $this->readFile($input);
+
+		$this->closeFile($input);
+
+		return $translations;
+	}
+
+	/**
+	 * Opens file to read content.
+	 * 
+	 * @return FileInputPointer
+	 */
+	private function openFile()
+	{
+		if (($input = fopen($this->parameters['input'], 'r')) === false) {
 			$this->error('Can\'t open the input file!');
 		}
 
-		// Write CSV lintes
-		while (($data = fgetcsv($input_fp, 0, $this->parameters['delimiter'], $this->parameters['enclosure'], $this->parameters['escape'])) !== false) {
+		return $input;
+	}
+
+	/**
+	 * Read content of file.
+	 * 
+	 * @param FilePointer $input
+	 * @throws \Exception
+	 * @return array
+	 */
+	private function readFile($input)
+	{
+		if($this->parameters['excel'])
+			$this->adjustFromExcel();
+
+		$translations = [];
+		while (($data = fgetcsv($input, 0, $this->parameters['delimiter'], $this->parameters['enclosure'], $this->parameters['escape'])) !== false) {
 			if(isset($translations[$data[0]]) == false)
 				$translations[$data[0]] = [];
+
+			if(sizeof($data) != 3)
+				throw new \Exception("Wrong format of file. Try launch command with -X option if you use Excel for editing file.");
 
 			$translations[$data[0]][$data[1]] = $data[2];
 		}
 
-		fclose($input_fp);
-
 		return $translations;
+	}
+
+	/**
+	 * Adjust file to Excel format.
+	 * 
+	 * @return void
+	 */
+	private function adjustFromExcel()
+	{
+		$data = file_get_contents($this->parameters['input']);
+		file_put_contents($this->parameters['input'], mb_convert_encoding($data, 'UTF-8', 'UTF-16'));		
+	}
+
+	/**
+	 * Close file.
+	 * 
+	 * @return void
+	 */
+	private function closeFile($input)
+	{
+		fclose($input);
 	}
 
 	/**
@@ -142,7 +197,7 @@ class ImportFromCsvCommand extends Command
 	 */
 	private function saveTranslations($translations)
 	{
-		LangListService::writeLangList($locale, $group, $translations);
+		LangListService::writeLangList($this->parameters['locale'], $this->parameters['group'], $translations);
 	}
 
 	/**
@@ -152,7 +207,7 @@ class ImportFromCsvCommand extends Command
 	 */
 	private function sayItsFinish()
 	{
-		$this->info('Finished! Translations imported from: '. (substr($this->parameters['output'], strlen(base_path()) + 1)) . $this->ext 
+		$this->info('Finished! Translations imported from: '. (substr($this->parameters['input'], strlen(base_path()) + 1))
 			. PHP_EOL);
 	}
 	

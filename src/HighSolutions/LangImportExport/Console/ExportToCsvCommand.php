@@ -16,9 +16,9 @@ class ExportToCsvCommand extends Command
      * @var string
      */
     protected $signature = 'lang:export 
-    						{locale : The locale to be exported (default - default lang of application).} 
-    						{group : The name of translation file to export (default - all files).} 
-    						{--O|output= : Filename of file to store exported translation files (optional, default - storage/app/lang-import-export.csv).} 
+    						{locale? : The locale to be exported (default - default lang of application).} 
+    						{group? : The name of translation file to export (default - all files).} 
+    						{output? : Filename of exported translation files (optional, default - storage/app/lang-import-export.csv).} 
     						{--A|append : Append name of group to the name of file (optional, default - empty).}
     						{--X|excel : Set file encoding for Excel (optional, default - UTF-8).}
     						{--D|delimiter=, : Field delimiter (optional, default - ",").} 
@@ -29,7 +29,7 @@ class ExportToCsvCommand extends Command
 	 *
 	 * @var string
 	 */
-	protected $description = "Exports the language files to CSV file.";
+	protected $description = "Exports the language files to CSV file";
 
 	/**
 	 * Parameters provided to command.
@@ -60,7 +60,7 @@ class ExportToCsvCommand extends Command
 	public function __construct()
 	{
 		parent::__construct();
-		$this->defaultPath = storage_path('app'. DIRECTORY_SEPARATOR .'lang-import-export');
+		$this->defaultPath = storage_path('app'. DIRECTORY_SEPARATOR .'lang-import-export') . $this->ext;
 	}
 
 	/**
@@ -90,8 +90,8 @@ class ExportToCsvCommand extends Command
 	{
 		$this->parameters = [
 			'group' => $this->argument('group'),
-			'locale' => $this->argument('locale') === false ? config('app.locale') : $this->argument('locale'),
-			'output' => $this->option('output') === false ? $this->defaultPath : base_path($this->option('output')),
+			'locale' => $this->argument('locale') === null ? config('app.locale') : $this->argument('locale'),
+			'output' => $this->argument('output') === null ? $this->defaultPath : base_path($this->argument('output')),
 			'append' => $this->option('append') !== false,
 			'excel' => $this->option('excel') !== false,
 			'delimiter' => $this->option('delimiter'),
@@ -122,7 +122,7 @@ class ExportToCsvCommand extends Command
 	private function sayItsBeginning()
 	{
 		$this->info(PHP_EOL
-			. 'Translations export of '. ($this->parameters['group'] === false ? 'all groups' : $this->parameters['group'] .' group') .' has started.');
+			. 'Translations export of '. ($this->parameters['group'] === null ? 'all groups' : $this->parameters['group'] .' group') .' - started.');
 	}
 
 	/**
@@ -156,7 +156,10 @@ class ExportToCsvCommand extends Command
 	 */
 	private function openFile()
 	{
-		if (!($output = fopen($this->parameters['output'] . $this->ext, 'w'))) {
+		if(substr($this->parameters['output'], -4) != $this->ext)
+			$this->parameters['output'] .= $this->ext;
+
+		if (!($output = fopen($this->parameters['output'], 'w'))) {
 			$output = fopen($this->defaultPath . $this->ext, 'w');
 		}
 		return $output;
@@ -217,8 +220,8 @@ class ExportToCsvCommand extends Command
 	 */
 	private function adjustToExcel()
 	{
-		$data = file_get_contents($this->parameters['output'] . $this->ext);
-		file_put_contents($this->parameters['output'] . $this->ext, chr(255) . chr(254) . mb_convert_encoding($data, 'UTF-16LE', 'UTF-8'));		
+		$data = file_get_contents($this->parameters['output']);
+		file_put_contents($this->parameters['output'], chr(255) . chr(254) . mb_convert_encoding($data, 'UTF-16LE', 'UTF-8'));		
 	}
 
 	/**
@@ -228,7 +231,7 @@ class ExportToCsvCommand extends Command
 	 */
 	private function sayItsFinish()
 	{
-		$this->info('Finished! Translations saved to: '. (substr($this->parameters['output'], strlen(base_path()) + 1)) . $this->ext 
+		$this->info('Finished! Translations saved to: '. (substr($this->parameters['output'], strlen(base_path()) + 1))  
 			. PHP_EOL);
 	}
 
