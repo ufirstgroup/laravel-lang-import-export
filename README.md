@@ -49,11 +49,10 @@ Add the following line to the `require` section of your Laravel webapp's `compos
     }
 ```
 
-
 Run `composer update` to install the package.
 
-
-Finally add the following line to the `providers` array of your `app/config/app.php` file:
+This package uses Laravel 5.5 Package Auto-Discovery.
+For previous versions of Laravel, you need to update `config/app.php` by adding an entry for the service provider:
 
 ```php
     'providers' => array(
@@ -110,6 +109,10 @@ When you call command without parameters - it will try to read default file of e
 
 Changelog
 ------------
+
+5.4.3
+- support Package Auto-Discovery
+
 5.4.2
 - resolve problems with PSR-4 autoloading
 
@@ -127,6 +130,7 @@ Changelog
 Roadmap
 ------------
 
+* Removing tabs from text
 * Option for deleting export file after importing.
 * Option for excluding certain files (and system ones).
 * Unit tests!
@@ -136,4 +140,4 @@ Credits
 
 This package was originally created by [UFirst](http://github.com/ufirstgroup) and is available here: [Laravel-lang-import-export](https://github.com/ufirstgroup/laravel-lang-import-export).
 
-Currently is developed by [HighSolutions](http://highsolutions.pl), software house from Poland in love in Laravel.
+Currently is developed by [HighSolutions](https://highsolutions.org), software house from Poland in love in Laravel.

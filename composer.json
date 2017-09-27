@@ -24,7 +24,12 @@
     },
     "extra": {
         "component": "package",
-        "frameworks": ["Laravel 5"]
+        "frameworks": ["Laravel 5.5"],
+        "laravel": {
+            "providers": [
+                "HighSolutions\\LangImportExport\\LangImportExportServiceProvider"
+            ]            
+        }
     },
     "minimum-stability": "stable"
 }
