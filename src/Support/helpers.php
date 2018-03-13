@@ -10,6 +10,6 @@ if ( ! function_exists('resource_path'))
      */
     function resource_path($path = '')
     {
-        return \Illuminate\Support\Facades\App::basePath('resources' . ($path ? DIRECTORY_SEPARATOR . $path : $path));
+        return \Illuminate\Support\Facades\App::basePath() . DIRECTORY_SEPARATOR . 'resources' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
