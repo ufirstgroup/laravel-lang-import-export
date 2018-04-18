@@ -15,7 +15,7 @@
     "license": "MIT",
     "require": {
         "php": ">=5.6.4",
-        "illuminate/support": "~5.1"
+        "illuminate/support": "5.0.x|5.1.x|5.2.x|5.3.x|5.4.x|5.5.x|5.6.x"
     },
     "autoload": {
         "psr-4": {
@@ -24,7 +24,7 @@
     },
     "extra": {
         "component": "package",
-        "frameworks": ["Laravel 5.5"],
+        "frameworks": ["Laravel 5.6"],
         "laravel": {
             "providers": [
                 "HighSolutions\\LangImportExport\\LangImportExportServiceProvider"
