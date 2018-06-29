@@ -176,6 +176,9 @@ class ExportToCsvCommand extends Command
 	{
 		foreach ($translations as $group => $files) {
 			foreach($files as $key => $value) {
+				if(is_array($value)) {
+			    		continue;
+				}
 				$this->writeFile($output, $group, $key, $value);
 			}
 		}
