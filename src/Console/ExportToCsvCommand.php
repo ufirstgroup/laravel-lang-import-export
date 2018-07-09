@@ -162,6 +162,9 @@ class ExportToCsvCommand extends Command
 		if (!($output = fopen($this->parameters['output'], 'w'))) {
 			$output = fopen($this->defaultPath . $this->ext, 'w');
 		}
+		
+		fputs($output, "\xEF\xBB\xBF");
+		
 		return $output;
 	}
 
