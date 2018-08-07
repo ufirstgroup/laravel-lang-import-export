@@ -106,11 +106,19 @@ class LangListService
 		$header = "<?php\n\nreturn ";
 
 		$language_file = resource_path("lang/{$locale}/{$group}.php");
-		if (is_writable($language_file) && ($fp = fopen($language_file, 'w')) !== FALSE) {
-			fputs($fp, $header . var_export($translations, TRUE).";\n");
-			fclose($fp);
-		} else {
-			throw new \Exception("Cannot open language file at {$language_file} for writing. Check the file permissions.");
+		
+		if ( ! file_exists(dirname($language_file)))
+        	{
+		    mkdir(dirname($language_file), 0777, true);
+		}
+
+		if (($fp = fopen($language_file, 'w')) !== false && is_writable($language_file))
+		{
+		    fputs($fp, $header . var_export($translations, true) . ";\n");
+		    fclose($fp);
+		} else
+		{
+		    throw new \Exception("Cannot open language file at {$language_file} for writing. Check the file permissions.");
 		}
 	}
 
