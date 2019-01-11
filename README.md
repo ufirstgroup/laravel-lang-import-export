@@ -110,10 +110,19 @@ When you call command without parameters - it will try to read default file of e
 Changelog
 ------------
 
-5.4.5
+5.4.10
 * Laravel 5.7 support
 
-5.4.4
+5.4.9
+* Create new directory, when not exists before
+
+5.4.8
+* Fix UTF-8 encoding
+
+5.4.7
+*  Handling empty keys
+
+5.4.6
 * Laravel 5.6 support
 
 5.4.3
