@@ -45,7 +45,7 @@ Add the following line to the `require` section of your Laravel webapp's `compos
 
 ```javascript
     "require": {
-        "HighSolutions/laravel-lang-import-export": "5.4.*"
+        "HighSolutions/laravel-lang-import-export": "^6.0"
     }
 ```
 
@@ -109,6 +109,9 @@ When you call command without parameters - it will try to read default file of e
 
 Changelog
 ------------
+
+6.0.0
+* Support Laravel 6.0
 
 5.4.10
 * Laravel 5.7 support

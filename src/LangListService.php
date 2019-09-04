@@ -4,6 +4,7 @@ namespace HighSolutions\LangImportExport;
 
 use Lang;
 use File;
+use Illuminate\Support\Arr;
 
 class LangListService 
 {
@@ -55,7 +56,7 @@ class LangListService
 	private function getGroup($locale, $group)
 	{
 		$translations = Lang::getLoader()->load($locale, $group);
-		return array_dot($translations);
+		return Array::dot($translations);
 	}
 
 	/**
@@ -134,11 +135,11 @@ class LangListService
 	{
 		$translations = Lang::getLoader()->load($locale, $group);		
 		foreach($new_translations as $key => $value) {
-			array_set($translations, $key, $value);
+			Array::set($translations, $key, $value);
 		}
 
 		if(in_array($group, $this->dotFiles)) {
-			$translations = array_dot($translations);
+			$translations = Array::dot($translations);
 		}
 
 		return $translations;
