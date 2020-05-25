@@ -3,7 +3,6 @@
 namespace UFirst\LangImportExport;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 
 use UFirst\LangImportExport\Console\ExportToCsvCommand;
 use UFirst\LangImportExport\Console\ImportFromCsvCommand;
@@ -18,24 +17,14 @@ class LangImportExportServiceProvider extends ServiceProvider {
 	protected $defer = true;
 
 	/**
-	 * Bootstrap the application events.
-	 *
-	 * @return void
-	 */
-	public function boot(DispatcherContract $events)
-	{
-		parent::boot($events);
-		$this->registerExportToCsvCommand();
-		$this->registerImportFromCsvCommand();
-	}
-
-	/**
 	 * Register the service provider.
 	 *
 	 * @return void
 	 */
 	public function register()
 	{
+		$this->registerExportToCsvCommand();
+		$this->registerImportFromCsvCommand();
 		require __DIR__.'/../../bindings.php';
 	}
 
