@@ -55,7 +55,7 @@ class ExportToCsvCommand extends Command {
 	 *
 	 * @return void
 	 */
-	public function fire()
+	public function handle()
 	{
 		$locale = $this->argument('locale');
 		$group  = $this->argument('group');
@@ -73,7 +73,7 @@ class ExportToCsvCommand extends Command {
 
 		// Write CSV lintes
 		foreach ($strings as $key => $value) {
-			fputcsv($out, array($key, $value), $delimiter, $enclosure);
+			fputcsv($out, array($key, is_array($value) ? implode(',', $value) : $value), $delimiter, $enclosure);
 		}
 
 		fclose($out);

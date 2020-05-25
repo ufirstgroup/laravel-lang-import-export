@@ -28,7 +28,7 @@ class LangImportExportServiceProvider extends ServiceProvider {
 				ExportToCsvCommand::class,
 				ImportFromCsvCommand::class
 			]);
-			$this->app->singleton(LangListService::class, function ($app) {
+			$this->app->singleton('LangImportExportLangListService', function ($app) {
 				return new LangListService();
 			});
 		}

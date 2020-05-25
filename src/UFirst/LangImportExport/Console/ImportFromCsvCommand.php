@@ -56,7 +56,7 @@ class ImportFromCsvCommand extends Command {
 	 *
 	 * @return void
 	 */
-	public function fire()
+	public function handle()
 	{
 		$locale = $this->argument('locale');
 		$group  = $this->argument('group');

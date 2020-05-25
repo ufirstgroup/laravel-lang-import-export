@@ -1,6 +1,7 @@
 <?php
 
 namespace UFirst\LangImportExport;
+use Illuminate\Support\Arr;
 
 use Lang;
 
@@ -8,7 +9,7 @@ class LangListService {
 
 	public function loadLangList($locale, $group) {
 		$translations = Lang::getLoader()->load($locale, $group);
-		$translations_with_prefix = array_dot(array($group => $translations));
+		$translations_with_prefix = Arr::dot(array($group => $translations));
 		return $translations_with_prefix;
 	}
 
