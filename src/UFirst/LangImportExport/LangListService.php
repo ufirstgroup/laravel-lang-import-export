@@ -16,7 +16,7 @@ class LangListService {
 	public function writeLangList($locale, $group, $new_translations) {
 		$translations = Lang::getLoader()->load($locale, $group);
 		foreach($new_translations as $key => $value) {
-			array_set($translations, $key, $value);
+			Arr::set($translations, $key, $value);
 		}
 		$header = "<?php\n\nreturn ";
 
