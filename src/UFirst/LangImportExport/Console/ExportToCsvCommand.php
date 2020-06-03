@@ -31,9 +31,7 @@ class ExportToCsvCommand extends Command
 	 */
 	protected function getArguments()
 	{
-		return array(
-			array('group', InputArgument::OPTIONAL, 'The group (which is the name of the language file without the extension)'),
-		);
+		return [];
 	}
 
 	/**
@@ -47,7 +45,8 @@ class ExportToCsvCommand extends Command
 			array('delimiter', 'd', InputOption::VALUE_OPTIONAL, 'The optional delimiter parameter sets the field delimiter (one character only).', ','),
 			array('enclosure', 'c', InputOption::VALUE_OPTIONAL, 'The optional enclosure parameter sets the field enclosure (one character only).', '"'),
 			array('output', 'o', InputOption::VALUE_OPTIONAL, 'Redirect the output to this file'),
-			array('locale', 'l', InputOption::VALUE_OPTIONAL, 'The locale to be exported')
+			array('locale', 'l', InputOption::VALUE_OPTIONAL, 'The locale to be exported'),
+			array('group', 'g', InputOption::VALUE_OPTIONAL, 'The group (which is the name of the language file without the extension)'),
 		);
 	}
 
@@ -60,7 +59,7 @@ class ExportToCsvCommand extends Command
 	{
 		$delimiter = $this->option('delimiter');
 		$enclosure = $this->option('enclosure');
-		$groupArgument  = $this->argument('group');
+		$groupOption  = $this->option('group');
 		$locale = $this->option('locale');
 		$languages = LangListService::allLanguages()->all();
 		if ($locale && !in_array($locale, $languages)) {
@@ -70,7 +69,16 @@ class ExportToCsvCommand extends Command
 		$languages = $locale ? [$locale => $locale] : $languages;
 		$translations = [];
 		foreach ($languages as $language) {
-			$groups = $groupArgument ? [$groupArgument] : LangListService::allGroup($language);
+			$groups = LangListService::allGroup($language)->all();
+			if ($groupOption) {
+				if (in_array($groupOption, $groups)) {
+					$groups = [$groupOption];
+				} else {
+					$this->error("Group ${groupOption} does not exist for locale ${language}. Skipping");
+					continue;
+				}
+			}
+
 			foreach ($groups as $group) {
 				$strings = LangListService::loadLangList($language, $group);
 				$strings = array_map(function ($value) use ($language) {
