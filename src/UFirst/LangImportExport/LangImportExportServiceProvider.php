@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use UFirst\LangImportExport\Console\ExportToCsvCommand;
 use UFirst\LangImportExport\Console\ImportFromCsvCommand;
 use UFirst\LangImportExport\LangListService;
+use Illuminate\Filesystem\Filesystem;
 class LangImportExportServiceProvider extends ServiceProvider {
 
 	/**
@@ -29,7 +30,7 @@ class LangImportExportServiceProvider extends ServiceProvider {
 				ImportFromCsvCommand::class
 			]);
 			$this->app->singleton('LangImportExportLangListService', function ($app) {
-				return new LangListService();
+				return new LangListService(app(Filesystem::class), app()['path.lang']);
 			});
 		}
 	}

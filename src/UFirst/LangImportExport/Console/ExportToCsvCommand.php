@@ -7,7 +7,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use \UFirst\LangImportExport\Facades\LangListService;
 
-class ExportToCsvCommand extends Command {
+class ExportToCsvCommand extends Command
+{
 
 	/**
 	 * The console command name.
@@ -31,8 +32,7 @@ class ExportToCsvCommand extends Command {
 	protected function getArguments()
 	{
 		return array(
-			array('locale', InputArgument::REQUIRED, 'The locale to be exported.'),
-			array('group', InputArgument::REQUIRED, 'The group (which is the name of the language file without the extension)'),
+			array('group', InputArgument::OPTIONAL, 'The group (which is the name of the language file without the extension)'),
 		);
 	}
 
@@ -47,6 +47,7 @@ class ExportToCsvCommand extends Command {
 			array('delimiter', 'd', InputOption::VALUE_OPTIONAL, 'The optional delimiter parameter sets the field delimiter (one character only).', ','),
 			array('enclosure', 'c', InputOption::VALUE_OPTIONAL, 'The optional enclosure parameter sets the field enclosure (one character only).', '"'),
 			array('output', 'o', InputOption::VALUE_OPTIONAL, 'Redirect the output to this file'),
+			array('locale', 'l', InputOption::VALUE_OPTIONAL, 'The locale to be exported')
 		);
 	}
 
@@ -57,25 +58,48 @@ class ExportToCsvCommand extends Command {
 	 */
 	public function handle()
 	{
-		$locale = $this->argument('locale');
-		$group  = $this->argument('group');
-
 		$delimiter = $this->option('delimiter');
 		$enclosure = $this->option('enclosure');
-
-		$strings = LangListService::loadLangList($locale, $group);
-
+		$groupArgument  = $this->argument('group');
+		$locale = $this->option('locale');
+		$languages = LangListService::allLanguages()->all();
+		if ($locale && !in_array($locale, $languages)) {
+			$this->error("Locale ${locale} does not exist");
+			return;
+		}
+		$languages = $locale ? [$locale => $locale] : $languages;
+		$translations = [];
+		foreach ($languages as $language) {
+			$groups = $groupArgument ? [$groupArgument] : LangListService::allGroup($language);
+			foreach ($groups as $group) {
+				$strings = LangListService::loadLangList($language, $group);
+				$strings = array_map(function ($value) use ($language) {
+					return [$language => $value];
+				}, $strings);
+				$translations = array_merge_recursive($translations, $strings);
+			}
+		}
+		//normalize
+		$defaultLanguValues = array_map(function () {
+			return "";
+		}, $languages);
+		$translations = array_map(function ($translation) use ($defaultLanguValues) {
+			return array_merge($defaultLanguValues, $translation);
+		}, $translations);
 		// Create output device and write CSV.
 		$output = $this->option('output');
 		if (empty($output) || !($out = fopen($output, 'w'))) {
 			$out = fopen('php://output', 'w');
 		}
-
 		// Write CSV lintes
-		foreach ($strings as $key => $value) {
-			fputcsv($out, array($key, is_array($value) ? implode(',', $value) : $value), $delimiter, $enclosure);
+		fputcsv($out, array_merge(["key"], $languages));
+		foreach ($translations as $key => $values) {
+			try {
+				fputcsv($out, array_merge([$key], $values), $delimiter, $enclosure);
+			} catch (\Exception $e) {
+				$this->error("Failed to write ${key} with error: " . $e->getMessage());
+			}
 		}
-
 		fclose($out);
 	}
 }
