@@ -5,7 +5,10 @@ namespace UFirst\LangImportExport\Console;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Illuminate\Support\Arr;
+use Lang;
 use \UFirst\LangImportExport\Facades\LangListService;
+use Symfony\Component\VarExporter\VarExporter;
 
 class ImportFromCsvCommand extends Command {
 
@@ -21,7 +24,7 @@ class ImportFromCsvCommand extends Command {
 	 *
 	 * @var string
 	 */
-	protected $description = "Exports the language files to CSV files";
+	protected $description = "Imports the language files from CSV files";
 
 	/**
 	 * Get the console command arguments.
@@ -31,8 +34,6 @@ class ImportFromCsvCommand extends Command {
 	protected function getArguments()
 	{
 		return array(
-			array('locale', InputArgument::REQUIRED, 'The locale to be exported.'),
-			array('group', InputArgument::REQUIRED, 'The group (which is the name of the language file without the extension)'),
 			array('file', InputArgument::REQUIRED, 'The CSV file to be imported'),
 		);
 	}
@@ -56,10 +57,8 @@ class ImportFromCsvCommand extends Command {
 	 *
 	 * @return void
 	 */
-	public function fire()
+	public function handle()
 	{
-		$locale = $this->argument('locale');
-		$group  = $this->argument('group');
 		$file   = $this->argument('file');
 
 		$delimiter = $this->option('delimiter');
@@ -74,11 +73,45 @@ class ImportFromCsvCommand extends Command {
 		}
 
 		// Write CSV lintes
+		$languages = fgetcsv($input_fp, 0, $delimiter, $enclosure, $escape);
+		array_shift($languages);
+		$translations = [];
 		while (($data = fgetcsv($input_fp, 0, $delimiter, $enclosure, $escape)) !== FALSE) {
-			$strings[$data[0]] = $data[1];
+			$translations[array_shift($data)] = array_combine($languages, $data);
 		}
-
 		fclose($input_fp);
-		LangListService::writeLangList($locale, $group, $strings);
+		$this->writeLangList($languages, $translations);
 	}
+
+	private function writeLangList($languages, $new_translations) {
+        foreach ($languages as $locale) {
+            $groups = LangListService::allGroup($locale);
+            foreach ($groups as $group) {
+                $translations = LangListService::loadTranslations($locale, $group);
+                $override_translations = array_filter($new_translations, function($key) use($group) {
+                    return strpos($key, $group) === 0;
+                }, ARRAY_FILTER_USE_KEY);
+                if (count($override_translations) === 0) {
+                    $this->info("No translations were found for locale ${locale} within group ${group}");
+                    continue;
+                }
+                foreach($override_translations as $key => $value) {
+					if ($value[$locale]) {
+						Arr::set($translations, $key, $value[$locale]);
+					} else {
+						Arr::forget($translations, $key);
+					}
+                }
+                $header = "<?php\n\nreturn ";
+                $language_file = base_path("resources/lang/{$locale}/{$group}.php");
+                if (is_writable($language_file) && ($fp = fopen($language_file, 'w')) !== FALSE) {
+                    fputs($fp, $header.VarExporter::export($translations[$group], TRUE).";\n");
+                    fclose($fp);
+                } else {
+                    throw new \Exception("Cannot open language file at {$language_file} for writing. Check the file permissions.");
+                }
+            }
+        }
+	}
+
 }

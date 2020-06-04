@@ -8,24 +8,23 @@ It turns some navigation.php file...
 ```php
 <?php
 
-return array (
-  'commands' =>
-  array (
+return [
+  'commands' => [
     'next' => 'Next',
     'prev' => 'Previous',
     'play' => 'Play',
-  ),
-  'tips' =>
-  array (
+  ]
+  'tips' => [
     'next' => 'Navigate to the next item',
     'prev' => 'Navigate to the previous item',
     'play' => 'Autoplay the slide show',
-  ),
-);
+  ]
+];
 ```
 ...to the following CSV...
 
 ```CSV
+key,en
 navigation.commands.next,Next
 navigation.commands.prev,Previous
 navigation.commands.play,Play
@@ -39,26 +38,30 @@ navigation.tips.play,"Autoplay the slide show"
 Installation
 ------------
 
-Add the following line to the `require` section of your Laravel webapp's `composer.json` file:
+### Laravel 7.*
 
-```javascript
-    "require": {
-        "ufirst/lang-import-export": "dev-master"
-    }
+```bash
+composer require ufirst/lang-import-export:^7.0.0
 ```
-
-
-Run `composer update` to install the package.
-
 
 Finally add the following line to the `providers` array of your `app/config/app.php` file:
 
 ```php
-    'providers' => array(
+    'providers' => [
         /* ... */
         'UFirst\LangImportExport\LangImportExportServiceProvider'
-    )
+    ]
 ```
+
+### Laravel 5.*
+
+For Laravel 5.* checkout the [legacy branch](https://github.com/ufirstgroup/laravel-lang-import-export/tree/legacy) and require version ^5.1.2
+
+> The usage of the legacy version of this package is slightly different
+
+
+> As an alternative you can checkout the fork of this repository [highsolutions/laravel-lang-import-export](https://github.com/highsolutions/laravel-lang-import-export)
+
 
 Usage
 -----
@@ -68,19 +71,40 @@ The package currently provides two commands, one for exporting the files and one
 ### Export
 
 ```bash
-php artisan lang-export:csv en_US navigation
-php artisan lang-export:csv --output /some/file en_US navigation
-php artisan lang-export:csv --delimiter=";" --enclosure='"' --output=/some/file en_US navigation
+# export all locales with all groups to console
+php artisan lang-export:csv
+# export all locales with all groups to csv file
+php artisan lang-export:csv --output /some/file.csv
+# custom csv delimiter and enclosure
+php artisan lang-export:csv --delimiter=";" --enclosure='"' --output=/some/file.csv
+# export single locale
+php artisan lang-export:csv -l en --output=/some/path/translations-en.csv
+# export single translation group
+php artisan lang-export:csv -g navigation --output=/some/path/navigation-all-langs.csv
 ```
 
-You have to pass the __locale__ and the __group__ as arguments. The group is the name of the langauge file without its extension. You may define options for your desired CSV format.
+You can optionally pass the __-l__  (locale) and the __-g__  (group) as options. The group is the name of the langauge file without its extension. You may define options for your desired CSV format.
 
 ### Import
 
 
-```
-php artisan lang-import:csv en_US navigation /some/file
-php artisan lang-import:csv --delimiter=";" --enclosure='"' --escape='\\' en_US navigation /some/file
+```bash
+# import translations from csv
+php artisan lang-import:csv /some/file.csv
+# import from custom csv format
+php artisan lang-import:csv --delimiter=";" --enclosure='"' --escape='\\' /some/file.csv
 ```
 
-You have to pass  the __locale__, the __group__ and the __path to the CSV file__ as arguments. The group is the name of the langauge file without its extension. You may define options to match the CSV format of your input file.
+During import the locale is extracted from the first row of the CSV file. Translation groups are guessed from the translation keys e.g. __navigation.tips.next__ is imported to __navigation__ group
+
+
+### Changelog
+
+7.0.0
+- added support for laravel:^7.0.0
+- added feature to export all locales and groups in a single run
+- the import command will guess the locale and the translation group from the csv
+- added symfony/var-exporter for new array syntax during the import command
+5.1.2
+- legacy version
+- compatible with laravel:^5.4
