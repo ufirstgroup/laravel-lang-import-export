@@ -52,8 +52,4 @@ class LangListService {
             return $group->getBasename('.php');
         });
     }
-
-    public function loadTranslations($locale, $group) {
-        return Lang::getLoader()->load($locale, $group);
-    }
 }

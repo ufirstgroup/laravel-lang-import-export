@@ -76,8 +76,14 @@ class ImportFromCsvCommand extends Command {
 		$languages = fgetcsv($input_fp, 0, $delimiter, $enclosure, $escape);
 		array_shift($languages);
 		$translations = [];
+		$lineNumber = 1;
 		while (($data = fgetcsv($input_fp, 0, $delimiter, $enclosure, $escape)) !== FALSE) {
-			$translations[array_shift($data)] = array_combine($languages, $data);
+			$lineNumber++;
+			try {
+				$translations[array_shift($data)] = array_combine($languages, $data);
+			} catch (\Exception $e) {
+				$this->error("Failed to import line ${lineNumber} :" . implode(", ", $data));
+			}
 		}
 		fclose($input_fp);
 		$this->writeLangList($languages, $translations);
@@ -87,7 +93,7 @@ class ImportFromCsvCommand extends Command {
         foreach ($languages as $locale) {
             $groups = LangListService::allGroup($locale);
             foreach ($groups as $group) {
-                $translations = LangListService::loadTranslations($locale, $group);
+                $translations = LangListService::loadLangList($locale, $group);
                 $override_translations = array_filter($new_translations, function($key) use($group) {
                     return strpos($key, $group) === 0;
                 }, ARRAY_FILTER_USE_KEY);
@@ -105,7 +111,7 @@ class ImportFromCsvCommand extends Command {
                 $header = "<?php\n\nreturn ";
                 $language_file = base_path("resources/lang/{$locale}/{$group}.php");
                 if (is_writable($language_file) && ($fp = fopen($language_file, 'w')) !== FALSE) {
-                    fputs($fp, $header.VarExporter::export($translations[$group], TRUE).";\n");
+                    fputs($fp, $header.VarExporter::export($translations[$group]).";\n");
                     fclose($fp);
                 } else {
                     throw new \Exception("Cannot open language file at {$language_file} for writing. Check the file permissions.");
