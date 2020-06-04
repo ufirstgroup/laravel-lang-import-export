@@ -55,7 +55,7 @@ Finally add the following line to the `providers` array of your `app/config/app.
 
 ### Laravel 5.*
 
-For Laravel 5.* checkout the [legacy branch](ufirstgroup/laravel-lang-import-export/tree/legacy) and require version ^5.1.2
+For Laravel 5.* checkout the [legacy branch](https://github.com/ufirstgroup/laravel-lang-import-export/tree/legacy) and require version ^5.1.2
 
 > The usage of the legacy version of this package is slightly different
 
