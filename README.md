@@ -43,7 +43,7 @@ Add the following line to the `require` section of your Laravel webapp's `compos
 
 ```javascript
     "require": {
-        "ufirst/lang-import-export": "dev-master"
+        "ufirst/lang-import-export": "5.1.2"
     }
 ```
 
