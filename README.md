@@ -100,6 +100,9 @@ During import the locale is extracted from the first row of the CSV file. Transl
 
 ### Changelog
 
+7.1.0
+- automatically create translation files during import based on translation keys in csv
+- formatted code (PSR-2)
 7.0.0
 - added support for laravel:^7.0.0
 - added feature to export all locales and groups in a single run

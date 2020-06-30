@@ -1,26 +1,29 @@
 <?php
 
 namespace UFirst\LangImportExport;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
 use Lang;
 
-class LangListService {
+class LangListService
+{
 
-	public function __construct(Filesystem $disk, $languageFilesPath)
-	{
-		$this->disk = $disk;
-		$this->languageFilesPath = $languageFilesPath;
-	}
+    public function __construct(Filesystem $disk, $languageFilesPath)
+    {
+        $this->disk = $disk;
+        $this->languageFilesPath = $languageFilesPath;
+    }
 
-	public function loadLangList($locale, $group) {
-		$translations = Lang::getLoader()->load($locale, $group);
-		$translations_with_prefix = Arr::dot(array($group => $translations));
-		return $translations_with_prefix;
-	}
+    public function loadLangList($locale, $group)
+    {
+        $translations = Lang::getLoader()->load($locale, $group);
+        $translations_with_prefix = Arr::dot(array($group => $translations));
+        return $translations_with_prefix;
+    }
 
-	/**
+    /**
      * Get all languages from the application.
      *
      * @return Collection
@@ -34,16 +37,16 @@ class LangListService {
         })->filter(function ($language) {
             return $language != 'vendor';
         });
-	}
-	
-	/**
+    }
+
+    /**
      * Get all group translations from the application.
      *
      * @return array
      */
     public function allGroup($language)
     {
-        $groupPath = "{$this->languageFilesPath}".DIRECTORY_SEPARATOR."{$language}";
+        $groupPath = "{$this->languageFilesPath}" . DIRECTORY_SEPARATOR . "{$language}";
         if (!$this->disk->exists($groupPath)) {
             return [];
         }

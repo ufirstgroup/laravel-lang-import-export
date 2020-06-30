@@ -10,7 +10,8 @@ use Lang;
 use \UFirst\LangImportExport\Facades\LangListService;
 use Symfony\Component\VarExporter\VarExporter;
 
-class ImportFromCsvCommand extends Command {
+class ImportFromCsvCommand extends Command
+{
 
 	/**
 	 * The console command name.
@@ -65,8 +66,6 @@ class ImportFromCsvCommand extends Command {
 		$enclosure = $this->option('enclosure');
 		$escape    = $this->option('escape');
 
-		$strings = array();
-
 		// Create output device and write CSV.
 		if (($input_fp = fopen($file, 'r')) === FALSE) {
 			$this->error('Can\'t open the input file!');
@@ -82,42 +81,61 @@ class ImportFromCsvCommand extends Command {
 			try {
 				$translations[array_shift($data)] = array_combine($languages, $data);
 			} catch (\Exception $e) {
-				$this->error("Failed to import line ${lineNumber} :" . implode(", ", $data));
+				$this->error("Failed to import line ${lineNumber}. Languages" . implode(", ", $languages) . ' | Translations: ' . implode(", ", $data) . ' ' . $e->getMessage());
 			}
 		}
 		fclose($input_fp);
 		$this->writeLangList($languages, $translations);
 	}
 
-	private function writeLangList($languages, $new_translations) {
-        foreach ($languages as $locale) {
-            $groups = LangListService::allGroup($locale);
-            foreach ($groups as $group) {
-                $translations = LangListService::loadLangList($locale, $group);
-                $override_translations = array_filter($new_translations, function($key) use($group) {
-                    return strpos($key, $group) === 0;
-                }, ARRAY_FILTER_USE_KEY);
-                if (count($override_translations) === 0) {
-                    $this->info("No translations were found for locale ${locale} within group ${group}");
-                    continue;
-                }
-                foreach($override_translations as $key => $value) {
+	private function getGroupsFromNewTranslations($new_translations)
+	{
+		$groups = [];
+		foreach ($new_translations as $key => $value) {
+			$group = explode('.', $key)[0];
+			$groups[$group] = $group;
+		}
+		return $groups;
+	}
+
+	private function writeLangList($languages, $new_translations)
+	{
+		$groups = $this->getGroupsFromNewTranslations($new_translations);
+		foreach ($languages as $locale) {
+			foreach ($groups as $group) {
+				$translations = LangListService::loadLangList($locale, $group);
+				$override_translations = array_filter($new_translations, function ($key) use ($group) {
+					return strpos($key, $group) === 0;
+				}, ARRAY_FILTER_USE_KEY);
+				if (count($override_translations) === 0) {
+					$this->info("No translations were found for locale ${locale} within group ${group}");
+					continue;
+				}
+				foreach ($override_translations as $key => $value) {
 					if ($value[$locale]) {
 						Arr::set($translations, $key, $value[$locale]);
 					} else {
 						Arr::forget($translations, $key);
 					}
-                }
-                $header = "<?php\n\nreturn ";
-                $language_file = base_path("resources/lang/{$locale}/{$group}.php");
-                if (is_writable($language_file) && ($fp = fopen($language_file, 'w')) !== FALSE) {
-                    fputs($fp, $header.VarExporter::export($translations[$group]).";\n");
-                    fclose($fp);
-                } else {
-                    throw new \Exception("Cannot open language file at {$language_file} for writing. Check the file permissions.");
-                }
-            }
-        }
+				}
+				$header = "<?php\n\nreturn ";
+				$language_dir = base_path("resources/lang/{$locale}");
+				if (!is_writable($language_dir)) {
+					$this->error("Language directory $language_dir does not exist or is not writeable. Skipping");
+					continue;
+				}
+				$language_file = base_path("resources/lang/{$locale}/{$group}.php");
+				if (!is_writable($language_file)) {
+					$this->info("Creating language file: $language_file");
+					touch($language_file);
+				}
+				if (($fp = fopen($language_file, 'w')) !== FALSE) {
+					fputs($fp, $header . VarExporter::export($translations[$group]) . ";\n");
+					fclose($fp);
+				} else {
+					$this->error("Cannot open language file at {$language_file} for writing. Check the file permissions.");
+				}
+			}
+		}
 	}
-
 }
