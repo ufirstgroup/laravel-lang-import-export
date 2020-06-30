@@ -8,7 +8,9 @@ use UFirst\LangImportExport\Console\ExportToCsvCommand;
 use UFirst\LangImportExport\Console\ImportFromCsvCommand;
 use UFirst\LangImportExport\LangListService;
 use Illuminate\Filesystem\Filesystem;
-class LangImportExportServiceProvider extends ServiceProvider {
+
+class LangImportExportServiceProvider extends ServiceProvider
+{
 
 	/**
 	 * Indicates if loading of the provider is deferred.
@@ -46,5 +48,4 @@ class LangImportExportServiceProvider extends ServiceProvider {
 			'lang-export.csv', 'lang-import.csv'
 		];
 	}
-
 }
