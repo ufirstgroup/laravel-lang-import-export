@@ -110,6 +110,9 @@ When you call command without parameters - it will try to read default file of e
 Changelog
 ------------
 
+6.1.0
+* Support Laravel 7.x and 8.x
+
 6.0.0
 * Support Laravel 6.0
 
