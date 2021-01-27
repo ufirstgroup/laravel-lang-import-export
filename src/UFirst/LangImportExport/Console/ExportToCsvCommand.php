@@ -100,7 +100,7 @@ class ExportToCsvCommand extends Command
 			$out = fopen('php://output', 'w');
 		}
 		// Write CSV lintes
-		fputcsv($out, array_merge(["key"], $languages));
+		fputcsv($out, array_merge(["key"], $languages),$delimiter,$enclosure);
 		foreach ($translations as $key => $values) {
 			try {
 				fputcsv($out, array_merge([$key], $values), $delimiter, $enclosure);
