@@ -115,6 +115,9 @@ During import the locale is extracted from the first row of the CSV file. Transl
 
 ### Changelog
 
+8.0.1
+- fix: header delimiter and enclosure did not respect the given options during export
+
 8.0.0
 - added support for Laravel 8.x
 
