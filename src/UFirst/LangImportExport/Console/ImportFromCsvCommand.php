@@ -113,11 +113,16 @@ class ImportFromCsvCommand extends Command
 				}
 				foreach ($override_translations as $key => $value) {
 					if ($value[$locale]) {
-						Arr::set($translations, $key, $value[$locale]);
+                        $translations[$key] = $value[$locale];
 					} else {
 						Arr::forget($translations, $key);
 					}
 				}
+                $undottedTranslations = [];
+                foreach ($translations as $key => $translation) {
+                    Arr::set($undottedTranslations, $key, $translation);
+                }
+                $translations = $undottedTranslations;
 				$header = "<?php\n\nreturn ";
 				$language_dir = base_path("resources/lang/{$locale}");
 				if (!is_writable($language_dir)) {
