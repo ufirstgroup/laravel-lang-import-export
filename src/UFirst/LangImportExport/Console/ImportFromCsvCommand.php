@@ -49,7 +49,8 @@ class ImportFromCsvCommand extends Command
 		return array(
 			array('delimiter', 'd', InputOption::VALUE_OPTIONAL, 'The optional delimiter parameter sets the field delimiter (one character only).', ','),
 			array('enclosure', 'c', InputOption::VALUE_OPTIONAL, 'The optional enclosure parameter sets the field enclosure (one character only).', '"'),
-			array('escape',    'e', InputOption::VALUE_OPTIONAL, 'The escape character (one character only). Defaults as a backslash.', '\\'),
+			array('escape', 'e', InputOption::VALUE_OPTIONAL, 'The escape character (one character only). Defaults as a backslash.', '\\'),
+			array('merge', 'm', InputOption::VALUE_OPTIONAL, 'Merge translations in single file instead of overwriting whole file.', false),
 		);
 	}
 
@@ -60,11 +61,12 @@ class ImportFromCsvCommand extends Command
 	 */
 	public function handle()
 	{
-		$file   = $this->argument('file');
+		$file = $this->argument('file');
 
 		$delimiter = $this->option('delimiter');
 		$enclosure = $this->option('enclosure');
-		$escape    = $this->option('escape');
+		$escape = $this->option('escape');
+		$merge = $this->option('merge');
 
 		// Create output device and write CSV.
 		if (($input_fp = fopen($file, 'r')) === FALSE) {
@@ -85,7 +87,7 @@ class ImportFromCsvCommand extends Command
 			}
 		}
 		fclose($input_fp);
-		$this->writeLangList($languages, $translations);
+		$this->writeLangList($languages, $translations, $merge);
 	}
 
 	private function getGroupsFromNewTranslations($new_translations)
@@ -98,7 +100,7 @@ class ImportFromCsvCommand extends Command
 		return $groups;
 	}
 
-	private function writeLangList($languages, $new_translations)
+	private function writeLangList($languages, $new_translations, $should_merge_translations = false)
 	{
 		$groups = $this->getGroupsFromNewTranslations($new_translations);
 		foreach ($languages as $locale) {
@@ -113,16 +115,22 @@ class ImportFromCsvCommand extends Command
 				}
 				foreach ($override_translations as $key => $value) {
 					if ($value[$locale]) {
-                        $translations[$key] = $value[$locale];
+						if (!$should_merge_translations) {
+							Arr::set($translations, $key, $value[$locale]);
+						} else {
+							$translations[$key] = $value[$locale];
+						}
 					} else {
 						Arr::forget($translations, $key);
 					}
 				}
-                $undottedTranslations = [];
-                foreach ($translations as $key => $translation) {
-                    Arr::set($undottedTranslations, $key, $translation);
-                }
-                $translations = $undottedTranslations;
+				if ($should_merge_translations) {
+					$undotted_translations = [];
+					foreach ($translations as $key => $translation) {
+						Arr::set($undotted_translations, $key, $translation);
+					}
+					$translations = $undotted_translations;
+				}
 				$header = "<?php\n\nreturn ";
 				$language_dir = base_path("resources/lang/{$locale}");
 				if (!is_writable($language_dir)) {
