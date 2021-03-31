@@ -108,12 +108,17 @@ You can optionally pass the __-l__  (locale) and the __-g__  (group) as options.
 php artisan lang-import:csv /some/file.csv
 # import from custom csv format
 php artisan lang-import:csv --delimiter=";" --enclosure='"' --escape='\\' /some/file.csv
+# import and merge over existing translation file
+php artisan lang-import:csv --merge=true /some/file.csv
 ```
 
 During import the locale is extracted from the first row of the CSV file. Translation groups are guessed from the translation keys e.g. __navigation.tips.next__ is imported to __navigation__ group
 
 
 ### Changelog
+
+8.0.2
+- merge imported csv with existing translations by adding --merge=true option to import command
 
 8.0.1
 - fix: header delimiter and enclosure did not respect the given options during export
