@@ -42,7 +42,7 @@ class LangListService
     /**
      * Get all group translations from the application.
      *
-     * @return array
+     * @return array|Collection
      */
     public function allGroup($language)
     {
@@ -52,7 +52,11 @@ class LangListService
         }
         $groups = Collection::make($this->disk->allFiles($groupPath));
         return $groups->map(function ($group) {
-            return $group->getBasename('.php');
+            if (empty($group->getRelativePath())) {
+                return $group->getBasename('.php');
+            } else {
+                return $group->getRelativePath() . '/' . $group->getBasename('.php');
+            }
         });
     }
 }
