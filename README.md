@@ -38,19 +38,10 @@ navigation.tips.play,"Autoplay the slide show"
 Installation
 ------------
 
-### Laravel 8.*
+### Laravel 8.* and above
 
 ```bash
-composer require ufirst/lang-import-export:^8.0.0
-```
-
-Finally add the following line to the `providers` array of your `app/config/app.php` file:
-
-```php
-    'providers' => [
-        /* ... */
-        'UFirst\LangImportExport\LangImportExportServiceProvider'
-    ]
+composer require ufirst/lang-import-export:^8.1.0
 ```
 
 ### Laravel 7.*
@@ -116,6 +107,11 @@ During import the locale is extracted from the first row of the CSV file. Transl
 
 
 ### Changelog
+
+8.1.0
+- added support for laravel 9
+- dropped support below laravel 8
+- automatic service provider and alias discovery 
 
 8.0.2
 - merge imported csv with existing translations by adding --merge=true option to import command
