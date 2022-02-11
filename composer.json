@@ -24,7 +24,15 @@
     },
     "extra": {
         "component": "package",
-        "frameworks": ["Laravel 7"]
+        "frameworks": ["Laravel 7"],
+        "laravel": {
+            "providers": [
+                "UFirst\\LangImportExport\\LangImportExportServiceProvider"
+            ],
+            "aliases": {
+                "LangListService": "UFirst\\LangImportExport\\Facades\\LangListService"
+            }
+        }
     },
     "minimum-stability": "stable"
 }
