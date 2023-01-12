@@ -91,6 +91,8 @@ php artisan lang-export:csv -g navigation --output=/some/path/navigation-all-lan
 
 You can optionally pass the __-l__  (locale) and the __-g__  (group) as options. The group is the name of the langauge file without its extension. You may define options for your desired CSV format.
 
+**NB: Exported CSV file will saved inside the *Storage/app* directory**
+
 ### Import
 
 
@@ -105,6 +107,7 @@ php artisan lang-import:csv --merge=true /some/file.csv
 
 During import the locale is extracted from the first row of the CSV file. Translation groups are guessed from the translation keys e.g. __navigation.tips.next__ is imported to __navigation__ group
 
+  **NB: put the csv file inside *Storage/app* directory**
 
 ### Changelog
 

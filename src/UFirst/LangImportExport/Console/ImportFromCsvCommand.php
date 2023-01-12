@@ -69,7 +69,7 @@ class ImportFromCsvCommand extends Command
 		$merge = $this->option('merge');
 
 		// Create output device and write CSV.
-		if (($input_fp = fopen($file, 'r')) === FALSE) {
+		if (($input_fp = fopen(app_path($file), 'r')) === FALSE) {
 			$this->error('Can\'t open the input file!');
 		}
 

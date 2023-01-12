@@ -96,8 +96,8 @@ class ExportToCsvCommand extends Command
 		}, $translations);
 		// Create output device and write CSV.
 		$output = $this->option('output');
-		if (empty($output) || !($out = fopen($output, 'w'))) {
-			$out = fopen('php://output', 'w');
+		if (empty($output) || !($out = fopen(app_path($output), 'w'))) {
+			$out = fopen(app_path('php://output'), 'w');
 		}
 		// Write CSV lintes
 		fputcsv($out, array_merge(["key"], $languages), $delimiter, $enclosure);
