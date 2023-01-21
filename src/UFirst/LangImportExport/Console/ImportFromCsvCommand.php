@@ -133,11 +133,14 @@ class ImportFromCsvCommand extends Command
 				}
 				$header = "<?php\n\nreturn ";
 				$language_dir = base_path("resources/lang/{$locale}");
+                if (! file_exists($language_dir) && file_exists(base_path("lang/{$locale}"))) {
+                    $language_dir = base_path("lang/{$locale}");
+                }
 				if (!is_writable($language_dir)) {
 					$this->error("Language directory $language_dir does not exist or is not writeable. Skipping");
 					continue;
 				}
-				$language_file = base_path("resources/lang/{$locale}/{$group}.php");
+				$language_file = $language_dir . "/{$group}.php";
 				if (!is_writable($language_file)) {
 					$this->info("Creating language file: $language_file");
 					touch($language_file);

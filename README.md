@@ -38,7 +38,7 @@ navigation.tips.play,"Autoplay the slide show"
 Installation
 ------------
 
-### Laravel 8.* and above
+### Laravel 9.* and above
 
 ```bash
 composer require ufirst/lang-import-export:^8.1.0
