@@ -83,7 +83,7 @@ class ImportFromCsvCommand extends Command
 			try {
 				$translations[array_shift($data)] = array_combine($languages, $data);
 			} catch (\Exception $e) {
-				$this->error("Failed to import line ${lineNumber}. Languages" . implode(", ", $languages) . ' | Translations: ' . implode(", ", $data) . ' ' . $e->getMessage());
+				$this->error("Failed to import line {$lineNumber}. Languages" . implode(", ", $languages) . ' | Translations: ' . implode(", ", $data) . ' ' . $e->getMessage());
 			}
 		}
 		fclose($input_fp);
@@ -110,7 +110,7 @@ class ImportFromCsvCommand extends Command
 					return strpos($key, $group) === 0;
 				}, ARRAY_FILTER_USE_KEY);
 				if (count($override_translations) === 0) {
-					$this->info("No translations were found for locale ${locale} within group ${group}");
+					$this->info("No translations were found for locale {$locale} within group {$group}");
 					continue;
 				}
 				foreach ($override_translations as $key => $value) {
