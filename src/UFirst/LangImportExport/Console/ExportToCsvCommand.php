@@ -63,7 +63,7 @@ class ExportToCsvCommand extends Command
 		$locale = $this->option('locale');
 		$languages = LangListService::allLanguages()->all();
 		if ($locale && !in_array($locale, $languages)) {
-			$this->error("Locale ${locale} does not exist");
+			$this->error("Locale {$locale} does not exist");
 			return;
 		}
 		$languages = $locale ? [$locale => $locale] : $languages;
@@ -74,7 +74,7 @@ class ExportToCsvCommand extends Command
 				if (in_array($groupOption, $groups)) {
 					$groups = [$groupOption];
 				} else {
-					$this->error("Group ${groupOption} does not exist for locale ${language}. Skipping");
+					$this->error("Group {$groupOption} does not exist for locale {$language}. Skipping");
 					continue;
 				}
 			}
@@ -105,7 +105,7 @@ class ExportToCsvCommand extends Command
 			try {
 				fputcsv($out, array_merge([$key], $values), $delimiter, $enclosure);
 			} catch (\Exception $e) {
-				$this->error("Failed to write ${key} with error: " . $e->getMessage());
+				$this->error("Failed to write {$key} with error: " . $e->getMessage());
 			}
 		}
 		fclose($out);
