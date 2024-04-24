@@ -47,6 +47,7 @@ class ExportToCsvCommand extends Command
 			array('output', 'o', InputOption::VALUE_OPTIONAL, 'Redirect the output to this file'),
 			array('locale', 'l', InputOption::VALUE_OPTIONAL, 'The locale to be exported'),
 			array('group', 'g', InputOption::VALUE_OPTIONAL, 'The group (which is the name of the language file without the extension)'),
+			array('module', 'm', InputOption::VALUE_OPTIONAL, 'Module name for translation'),
 		);
 	}
 
@@ -61,6 +62,12 @@ class ExportToCsvCommand extends Command
 		$enclosure = $this->option('enclosure');
 		$groupOption  = $this->option('group');
 		$locale = $this->option('locale');
+		$module = $this->option('module');
+
+        if($module) {
+            LangListService::setModule($module);
+        }
+
 		$languages = LangListService::allLanguages()->all();
 		if ($locale && !in_array($locale, $languages)) {
 			$this->error("Locale {$locale} does not exist");

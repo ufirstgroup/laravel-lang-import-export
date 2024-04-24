@@ -5,21 +5,38 @@ namespace UFirst\LangImportExport;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
-use Lang;
+use Illuminate\Support\Facades\Lang;
 
 class LangListService
 {
+    /**
+     * @var string|null
+     */
+    private $module;
 
-    public function __construct(Filesystem $disk, $languageFilesPath)
+    public function __construct(Filesystem $disk, $languageFilesPath, ?string $module = null)
     {
         $this->disk = $disk;
         $this->languageFilesPath = $languageFilesPath;
+        $this->module = $module;
+    }
+
+    public function setModule(string $module)
+    {
+        $this->module = $module;
     }
 
     public function loadLangList($locale, $group)
     {
-        $translations = Lang::getLoader()->load($locale, $group);
-        $translations_with_prefix = Arr::dot(array($group => $translations));
+        $translations = Lang::getLoader()->load($this->module ? "{$this->module}/{$locale}" : $locale, $group);
+        $prefix_array = [$group => $translations];
+
+        if($this->module) {
+            $prefix_array = [$this->module => $prefix_array];
+        }
+
+        $translations_with_prefix = Arr::dot($prefix_array);
+
         return $translations_with_prefix;
     }
 
@@ -30,7 +47,7 @@ class LangListService
      */
     public function allLanguages()
     {
-        $directories = Collection::make($this->disk->directories($this->languageFilesPath));
+        $directories = Collection::make($this->disk->directories($this->getLanguagePath()));
         return $directories->mapWithKeys(function ($directory) {
             $language = basename($directory);
             return [$language => $language];
@@ -46,7 +63,7 @@ class LangListService
      */
     public function allGroup($language)
     {
-        $groupPath = "{$this->languageFilesPath}" . DIRECTORY_SEPARATOR . "{$language}";
+        $groupPath = $this->getLanguagePath() . DIRECTORY_SEPARATOR . "{$language}";
         if (!$this->disk->exists($groupPath)) {
             return [];
         }
@@ -58,5 +75,10 @@ class LangListService
                 return $group->getRelativePath() . '/' . $group->getBasename('.php');
             }
         });
+    }
+
+    public function getLanguagePath()
+    {
+        return $this->module ? "{$this->languageFilesPath}/{$this->module}" : $this->languageFilesPath;
     }
 }

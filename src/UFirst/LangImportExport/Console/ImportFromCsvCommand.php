@@ -51,6 +51,7 @@ class ImportFromCsvCommand extends Command
 			array('enclosure', 'c', InputOption::VALUE_OPTIONAL, 'The optional enclosure parameter sets the field enclosure (one character only).', '"'),
 			array('escape', 'e', InputOption::VALUE_OPTIONAL, 'The escape character (one character only). Defaults as a backslash.', '\\'),
 			array('merge', 'm', InputOption::VALUE_OPTIONAL, 'Merge translations in single file instead of overwriting whole file.', false),
+			array('module', 'k', InputOption::VALUE_OPTIONAL, 'Module we should import to', null),
 		);
 	}
 
@@ -67,6 +68,7 @@ class ImportFromCsvCommand extends Command
 		$enclosure = $this->option('enclosure');
 		$escape = $this->option('escape');
 		$merge = $this->option('merge');
+		$module = $this->option('module');
 
 		// Create output device and write CSV.
 		if (($input_fp = fopen($file, 'r')) === FALSE) {
@@ -87,27 +89,33 @@ class ImportFromCsvCommand extends Command
 			}
 		}
 		fclose($input_fp);
-		$this->writeLangList($languages, $translations, $merge);
+		$this->writeLangList($languages, $translations, $merge, $module);
 	}
 
-	private function getGroupsFromNewTranslations($new_translations)
+	private function getGroupsFromNewTranslations($new_translations, ?string $module = null)
 	{
+        $moduleRequested = $module;
 		$groups = [];
 		foreach ($new_translations as $key => $value) {
-			$group = explode('.', $key)[0];
-			$groups[$group] = $group;
+            $group = explode('.', $key)[$moduleRequested ? 1 : 0];
+            $groups[$group] = $group;
 		}
 		return $groups;
 	}
 
-	private function writeLangList($languages, $new_translations, $should_merge_translations = false)
+	private function writeLangList($languages, $new_translations, $should_merge_translations = false, ?string $module = null)
 	{
-		$groups = $this->getGroupsFromNewTranslations($new_translations);
+		$groups = $this->getGroupsFromNewTranslations($new_translations, $module);
+
+        if($module) {
+            LangListService::setModule($module);
+        }
+
 		foreach ($languages as $locale) {
 			foreach ($groups as $group) {
 				$translations = LangListService::loadLangList($locale, $group);
-				$override_translations = array_filter($new_translations, function ($key) use ($group) {
-					return strpos($key, $group) === 0;
+				$override_translations = array_filter($new_translations, function ($key) use ($group, $module) {
+					return strpos($key, $group) !== -1;
 				}, ARRAY_FILTER_USE_KEY);
 				if (count($override_translations) === 0) {
 					$this->info("No translations were found for locale {$locale} within group {$group}");
@@ -132,18 +140,19 @@ class ImportFromCsvCommand extends Command
 					$translations = $undotted_translations;
 				}
 				$header = "<?php\n\nreturn ";
-				$language_dir = base_path("resources/lang/{$locale}");
+				$language_dir = $module ? base_path("resources/lang/{$module}/{$locale}") : base_path("resources/lang/{$locale}");
 				if (!is_writable($language_dir)) {
 					$this->error("Language directory $language_dir does not exist or is not writeable. Skipping");
 					continue;
 				}
-				$language_file = base_path("resources/lang/{$locale}/{$group}.php");
+				$language_file = $module ? base_path("resources/lang/{$module}/{$locale}/{$group}.php") : base_path("resources/lang/{$locale}/{$group}.php");
 				if (!is_writable($language_file)) {
 					$this->info("Creating language file: $language_file");
 					touch($language_file);
 				}
 				if (($fp = fopen($language_file, 'w')) !== FALSE) {
-					fputs($fp, $header . VarExporter::export($translations[$group]) . ";\n");
+                    $exported = $module ? $translations[$module][$group] : $translations[$group];
+					fputs($fp, $header . VarExporter::export($exported) . ";\n");
 					fclose($fp);
 				} else {
 					$this->error("Cannot open language file at {$language_file} for writing. Check the file permissions.");
