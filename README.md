@@ -108,6 +108,10 @@ During import the locale is extracted from the first row of the CSV file. Transl
 
 ### Changelog
 
+8.1.1
+- added support for laravel 10
+- fixed deprecated warnings for PHP 8.2+
+
 8.1.0
 - added support for laravel 9
 - dropped support below laravel 8
